@@ -2,28 +2,53 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 // -----------------------------
-// プレイヤー設定
+// 背景設定（無限スクロール）
 // -----------------------------
-let x = 200;
-let y = 320;   // 下側スタート
+const bgImg = new Image();
+bgImg.src = "background.png";  // ← 追加した背景画像名
+let bgY1 = 0;
+let bgY2 = -400;   // canvas高さと同じにする（400）
+
+function drawBackground() {
+  ctx.drawImage(bgImg, 0, bgY1, 400, 400);
+  ctx.drawImage(bgImg, 0, bgY2, 400, 400);
+
+  // 下方向へスクロール
+  bgY1 += 2;
+  bgY2 += 2;
+
+  // 1枚目が下に抜けたらリセット
+  if (bgY1 >= 400) {
+    bgY1 = -400;
+  }
+  if (bgY2 >= 400) {
+    bgY2 = -400;
+  }
+}
+
+// -----------------------------
+// プレイヤー
+// -----------------------------
+let x = 180;
+let y = 320;
 let speed = 5;
 
 const playerImg = new Image();
 playerImg.src = "player.png";
 
 // -----------------------------
-// 敵キャラ設定
+// 敵
 // -----------------------------
 const enemyImg = new Image();
 enemyImg.src = "enemy.png";
 
 let enemies = [];
-let enemyCount = 10;  // ←敵の最初の数（好きに増やせる）
+let enemyCount = 5;
 
 function spawnEnemy() {
   enemies.push({
     x: Math.random() * 360,
-    y: Math.random() * 150,
+    y: Math.random() * -200,
     speedY: 1 + Math.random() * 2
   });
 }
@@ -32,70 +57,59 @@ for (let i = 0; i < enemyCount; i++) {
   spawnEnemy();
 }
 
+function updateEnemies() {
+  enemies.forEach((e) => {
+    e.y += e.speedY;
+
+    if (e.y > 420) {
+      e.y = -40;
+      e.x = Math.random() * 360;
+    }
+  });
+}
+
 // -----------------------------
-// 弾設定
+// 弾
 // -----------------------------
 let bullets = [];
 
 function shoot() {
   bullets.push({
-    x: x + 18,    // プレイヤー中央あたり
+    x: x + 18,
     y: y,
-    speedY: -6   // 上に進む
+    speedY: -6
   });
 }
 
-// スペースキーで弾を撃つ
 document.addEventListener("keydown", (e) => {
   if (e.key === " ") {
     shoot();
   }
 });
 
-// -----------------------------
-// 敵の動作
-// -----------------------------
-function updateEnemies() {
-  enemies.forEach((enemy) => {
-    enemy.y += enemy.speedY;
-
-    // 下に消えたら上に復活
-    if (enemy.y > 400) {
-      enemy.y = -40;
-      enemy.x = Math.random() * 360;
-    }
-  });
-}
-
-// -----------------------------
-// 弾の動作
-// -----------------------------
 function updateBullets() {
   bullets.forEach((b) => {
     b.y += b.speedY;
   });
 
-  // 範囲外を削除
   bullets = bullets.filter((b) => b.y > -20);
 }
 
 // -----------------------------
-// 当たり判定（簡易）
+// 当たり判定
 // -----------------------------
 function checkCollisions() {
-  bullets.forEach((b, bIndex) => {
-    enemies.forEach((e, eIndex) => {
+  bullets.forEach((b, bi) => {
+    enemies.forEach((e, ei) => {
       if (
-        b.x < e.x + 70 &&
+        b.x < e.x + 40 &&
         b.x + 5 > e.x &&
-        b.y < e.y + 70 &&
+        b.y < e.y + 40 &&
         b.y + 10 > e.y
       ) {
-        // 敵と弾の削除
-        enemies.splice(eIndex, 1);
-        bullets.splice(bIndex, 1);
+        enemies.splice(ei, 1);
+        bullets.splice(bi, 1);
 
-        // 新しい敵を追加
         spawnEnemy();
       }
     });
@@ -103,19 +117,15 @@ function checkCollisions() {
 }
 
 // -----------------------------
-// 描画関係
+// 描画
 // -----------------------------
 function drawPlayer() {
-  if (playerImg.complete) {
-    ctx.drawImage(playerImg, x, y, 40, 40);
-  }
+  ctx.drawImage(playerImg, x, y, 40, 40);
 }
 
 function drawEnemies() {
-  enemies.forEach((enemy) => {
-    if (enemyImg.complete) {
-      ctx.drawImage(enemyImg, enemy.x, enemy.y, 70, 70);
-    }
+  enemies.forEach((e) => {
+    ctx.drawImage(enemyImg, e.x, e.y, 40, 40);
   });
 }
 
@@ -132,6 +142,7 @@ function drawBullets() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  drawBackground();
   drawPlayer();
   drawEnemies();
   drawBullets();
