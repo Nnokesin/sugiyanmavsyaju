@@ -1,7 +1,19 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-let score = 0;  
+let score = 0;
+// 効果音（ボス撃破）
+const bossDeadSound = new Audio("boss_dead.mp3");
+const ikisugi = new Audio("ikisugi.mp3");
+
+
+// BGM
+
+const bgm = new Audio("bgm.mp3");
+bgm.loop = true;       // 永遠にループ
+bgm.volume = 0.4;      // 音量（0.0 ～ 1.0）
+
+
 
 
 // -----------------------------
@@ -27,6 +39,7 @@ function drawBackground() {
     ctx.font = "20px Arial";
     ctx.fillText("桜ポイント: " + score, 10, 30);
     ctx.fillText("bosstime: " + frame, 200, 30);
+      
 }
 
 // -----------------------------
@@ -137,6 +150,8 @@ function checkCollisions() {
         enemies.splice(ei, 1);
         bullets.splice(bi, 1);
         spawnEnemy();
+        ikisugi.currentTime = 0;
+        ikisugi.play();
         score += 1;
       }
     });
@@ -156,11 +171,16 @@ function checkCollisions() {
 
         if (boss.HP <= 0) {
           boss.alive = false;
+
+          bossDeadSound.currentTime = 0;
+          bossDeadSound.play();
+
           alert("クソ桜撃破！！");
           score += 10;
           frame = 0;
           bosskill += 10;
           boss.HP = bosskill;
+          
         }
       }
     });
