@@ -26,6 +26,7 @@ function drawBackground() {
     ctx.fillStyle = "yellow";
     ctx.font = "20px Arial";
     ctx.fillText("桜ポイント: " + score, 10, 30);
+    ctx.fillText("bosstime: " + frame, 200, 30);
 }
 
 // -----------------------------
@@ -102,12 +103,13 @@ let boss = {
   width: 160,
   height: 160,
   speedY: 1,
-  HP: 50,            // ボスのHP
+  HP: 5,            // ボスのHP
   alive: false,
-  appearTime: 1200    // この時間(フレーム)後に出現
+  appearTime: 600    // この時間(フレーム)後に出現
 };
 
 let frame = 0;
+let bosskill = 0;
 
 function updateBoss() {
   if (!boss.alive) return;
@@ -154,8 +156,11 @@ function checkCollisions() {
 
         if (boss.HP <= 0) {
           boss.alive = false;
-          alert("クソ桜撃破！！やりますねぇ");
+          alert("クソ桜撃破！！");
           score += 10;
+          frame = 0;
+          bosskill += 10;
+          boss.HP = bosskill;
         }
       }
     });
@@ -235,7 +240,6 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowUp") y -= speed;
   if (e.key === "ArrowDown") y += speed;
   if (collision(player, enemy)) {
-    score -= 1;
+    score -= 1; 
 }
 });
-
