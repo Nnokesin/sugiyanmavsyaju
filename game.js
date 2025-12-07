@@ -104,7 +104,7 @@ let boss = {
   speedY: 1,
   HP: 50,            // ボスのHP
   alive: false,
-  appearTime: 600    // この時間(フレーム)後に出現
+  appearTime: 1200    // この時間(フレーム)後に出現
 };
 
 let frame = 0;
@@ -154,7 +154,7 @@ function checkCollisions() {
 
         if (boss.HP <= 0) {
           boss.alive = false;
-          alert("クソ桜撃破！！");
+          alert("クソ桜撃破！！やりますねぇ");
           score += 10;
         }
       }
@@ -238,3 +238,4 @@ document.addEventListener("keydown", (e) => {
     score -= 1;
 }
 });
+
